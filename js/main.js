@@ -61,7 +61,7 @@ function update () {
 }
 
 function render () {
-
+  try {
     //debug helper
     if (player.sprite) {
       game.debug.spriteInfo(player.sprite,32,32);
@@ -69,7 +69,7 @@ function render () {
     if (lastBubble.sprite) {
       game.debug.spriteInfo(lastBubble.sprite,32,160);
     }
-    if (player) {
+    if (player && player.sprite) {
       game.debug.text(score, 0, 0);
       game.debug.text("ChargeLeft: "+ player.chargeLeft, 16, (game.height - 16));
       game.debug.text("ChargeRight: "+ player.chargeRight, 16, (game.height - 32));
@@ -77,6 +77,10 @@ function render () {
       game.debug.text("RChargable: "+ player.canChargeRight, 16, (game.height - 64));
       game.debug.text("Score: "+ score, 16, (game.height - 96));
     }
+  }
+  catch (err) {
+    console.log(err);
+  }
 
 }
 

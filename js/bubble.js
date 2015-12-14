@@ -9,6 +9,7 @@ Bubble = function (xpos, ypos, size) {
 	this.touched = false;
 	
 	this.sprite = game.add.sprite(xpos, ypos, 'disc_blue');
+	this.sprite.mark = false;
 	grp_bubbles.add(this.sprite);
 	this.sprite.owner = this;
 	
@@ -151,12 +152,22 @@ Bubble.prototype.update = function () {
 	game.physics.arcade.collide(this, grp_bubbles, 
 		this.owner.bubbleCollide, null, this);
 	//console.log(this);
-	this.scale.setMagnitude(this.owner.size);
+	var drawScale = this.owner.size;
+	if (drawScale > 15) {
+		drawScale = 15;
+	}
+	if (drawScale < 0.5) {
+		drawScale = 0.5;
+	}
+	this.scale.setMagnitude(drawScale);
 	
-	if (this.body.onFloor()){
-		addScore(Math.pow(2,this.owner.size));
-		lastBubble = new Bubble(null, null, this.owner.size + 1);
-		lastBubble = new Bubble(null, null, this.owner.size + 1);
+	if (this.bottom >= game.height){
+		addScore(Math.floor(Math.pow(2,this.owner.size)));
+		if (grp_bubbles.countLiving() < 256) {
+			lastBubble = new Bubble(null, null, this.owner.size / 1.5);
+			lastBubble = new Bubble(null, null, this.owner.size / 1.5);
+		}
+		grp_bubbles.removeChild(this);
 		this.kill();
 	}
 	if (this.owner.chargingLeft) {
@@ -165,16 +176,23 @@ Bubble.prototype.update = function () {
 	if (this.owner.chargingRight) {
 		this.owner.chargeRight += (2/60);
 	}
+	grp_bubbles.forEach(function(bub) {
+    if (bub.mark){bub.kill();}
+  });
 }
 
 Bubble.prototype.bubbleCollide = function (b1, b2) {
-	if (b1.sprite.body.velocity.getMagnitude() < b2.sprite.body.velocity.getMagnitude()) {
+	if (b1.body.velocity.getMagnitude() < b2.body.velocity.getMagnitude()) {
 		b2.owner.size += b1.owner.size;
-		b1.kill();
+		//grp_bubbles.removeChild(b1);
+		//b1.kill();
+		b1.mark = true;
 	}
 	else
 	{
 		b1.owner.size += b2.owner.size;
-		b2.kill();
+		//grp_bubbles.removeChild(b2);
+		//b2.kill();
+		b2.mark = true;
 	}
 }
